@@ -18,7 +18,7 @@ class NotificationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Open notifications',
+      label: 'Open notifications.dart',
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,

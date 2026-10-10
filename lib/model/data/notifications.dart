@@ -1,12 +1,11 @@
-
-class Notifications {
+class AppNotification {
   final int openMaterial;
   final int chapter;
   final String type;
   final String content;
   final String createdAt;
 
-  const Notifications({
+  const AppNotification({
     required this.openMaterial,
     required this.chapter,
     required this.type,
@@ -14,45 +13,30 @@ class Notifications {
     required this.createdAt,
   });
 
-  factory Notifications.fromJson(Map<String, dynamic> json) => Notifications(
-    openMaterial: json['chapter__open_material__pk'] as int? ?? 0,
-    chapter: json['chapter__pk'] as int? ?? 0,
-    type: json['notification_type'] as String? ?? '',
-    content: json['content'] as String? ?? '',
-    createdAt: json['created_at'] as String? ?? '',
+  factory AppNotification.fromJson(Map<String, dynamic> j) => AppNotification(
+    openMaterial: (j['chapter__open_material__pk'] as num?)?.toInt() ?? 0,
+    chapter: (j['chapter__pk'] as num?)?.toInt() ?? 0,
+    type: j['notification_type'] as String? ?? '',
+    content: j['content'] as String? ?? '',
+    createdAt: j['created_at'] as String? ?? '',
   );
-
-  Map<String, dynamic> toJson() => {
-    'chapter__open_material__pk': openMaterial,
-    'chapter__pk': chapter,
-    'notification_type': type,
-    'content': content,
-    'created_at': createdAt,
-  };
 }
 
-// ---------------------------------------------------------
-
 class MyWarnings {
-  final String termAcademicYearName;
+  final String academicYearName;
   final String termName;
   final String statusAlert;
 
   const MyWarnings({
-    required this.termAcademicYearName,
+    required this.academicYearName,
     required this.termName,
     required this.statusAlert,
   });
 
-  factory MyWarnings.fromJson(Map<String, dynamic> json) => MyWarnings(
-    termAcademicYearName: json['term__academic_year__name'] as String? ?? '',
-    termName: json['term__name'] as String? ?? '',
-    statusAlert: json['status_alert'] as String? ?? '',
+  factory MyWarnings.fromJson(Map<String, dynamic> j) => MyWarnings(
+    academicYearName:
+    j['term__academic_year__name'] as String? ?? '',
+    termName: j['term__name'] as String? ?? '',
+    statusAlert: j['status_alert'] as String? ?? '',
   );
-
-  Map<String, dynamic> toJson() => {
-    'term__academic_year__name': termAcademicYearName,
-    'term__name': termName,
-    'status_alert': statusAlert,
-  };
 }

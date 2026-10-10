@@ -775,7 +775,7 @@ The app collects necessary personal data like name, email, university ID, and ac
 All data is handled confidentially according to the institute's privacy policies and is not shared with external parties except as required by law.
 
 6. Content and Services
-The app provides various services including schedules, exam results, academic announcements, and communication with administration.
+The app provides various services including schedules, exam results.dart, academic announcements, and communication with administration.
 The institute reserves the right to modify or temporarily/permanently discontinue any service without prior notice.
 
 7. Prohibited Behavior
@@ -829,7 +829,7 @@ Address: Raya Higher Institute for Management and Foreign Trade - New Damietta.'
   static const String cdStudentService = 'Student services';
   static const String cdExams = 'Exams';
   static const String cdResults = 'Results';
-  static const String cdOnlineResults = 'Online exam results';
+  static const String cdOnlineResults = 'Online exam results.dart';
   static const String cdRecords = 'Records';
   static const String cdSettings = 'Settings';
   static const String cdSignOut = 'Sign out';
@@ -1092,7 +1092,7 @@ Good luck!''';
   // Result / Exam Menu
   // ─────────────────────────────────────────────────────────────
   static const String emptyResultM =
-      'You donot have permission to view results - please contact student affairs';
+      'You donot have permission to view results.dart - please contact student affairs';
   static const String emptyExamM =
       'You donot have exam access - please contact student affairs';
 
@@ -1162,7 +1162,7 @@ Good luck!''';
   static const String cdOpenDigitalID =
       'Click here to show your digital ID, hourly rate, and credit score';
   static const String cdOpenNotifications =
-      'Click here to open your notifications and academic alerts';
+      'Click here to open your notifications.dart and academic alerts';
   static const String cdTabs = 'Navigation tabs for different sections';
   static const String cdTabEduPlatform = 'Educational Platform section';
   static const String cdTabOnlineSessions = 'Online Sessions section';
@@ -1193,7 +1193,7 @@ Good luck!''';
       'Click here to confirm a new registration';
   static const String cdStuGuide = 'Click here to open the student guide';
   static const String cdResultsFragment =
-      'This page displays the results of courses from previous semesters.';
+      'This page displays the results.dart of courses from previous semesters.';
   static const String cdRecordsFragment =
       'This page displays exam schedules and registered courses.';
   static const String cdContact =

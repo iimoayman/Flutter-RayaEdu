@@ -1,10 +1,10 @@
 class StudentAchievements {
-  final int countMaterials;           // count_materials
-  final int countChapters;            // count_chapters
-  final int countCompletedChapters;   // count_completed_chapters
-  final int countExamChapters;        // count_examChapters
-  final int countExamChaptersDone;    // count_examChapters_done
-  final double attendanceRate;        // attendanceRate
+  final int countMaterials;
+  final int countChapters;
+  final int countCompletedChapters;
+  final int countExamChapters;
+  final int countExamChaptersDone;
+  final double attendanceRate;
 
   const StudentAchievements({
     required this.countMaterials,
@@ -17,23 +17,24 @@ class StudentAchievements {
 
   factory StudentAchievements.fromJson(Map<String, dynamic> json) =>
       StudentAchievements(
-        countMaterials: _toInt(json['count_materials']),
-        countChapters: _toInt(json['count_chapters']),
-        countCompletedChapters: _toInt(json['count_completed_chapters']),
-        countExamChapters: _toInt(json['count_examChapters']),
-        countExamChaptersDone: _toInt(json['count_examChapters_done']),
-        attendanceRate: _toDouble(json['attendanceRate']),
+        countMaterials: (json['count_materials'] as num?)?.toInt() ?? 0,
+        countChapters: (json['count_chapters'] as num?)?.toInt() ?? 0,
+        countCompletedChapters:
+        (json['count_completed_chapters'] as num?)?.toInt() ?? 0,
+        countExamChapters:
+        (json['count_examChapters'] as num?)?.toInt() ?? 0,
+        countExamChaptersDone:
+        (json['count_examChapters_done'] as num?)?.toInt() ?? 0,
+        attendanceRate:
+        (json['attendanceRate'] as num?)?.toDouble() ?? 0.0,
       );
 
-  static int _toInt(dynamic v) {
-    if (v is int) return v;
-    if (v is num) return v.toInt();
-    return int.tryParse('$v') ?? 0;
-  }
-
-  static double _toDouble(dynamic v) {
-    if (v is double) return v;
-    if (v is num) return v.toDouble();
-    return double.tryParse('$v') ?? 0;
-  }
+  static const empty = StudentAchievements(
+    countMaterials: 0,
+    countChapters: 0,
+    countCompletedChapters: 0,
+    countExamChapters: 0,
+    countExamChaptersDone: 0,
+    attendanceRate: 0.0,
+  );
 }

@@ -3,6 +3,7 @@ import 'package:rayaedu/theme/app_colors.dart';
 import 'package:rayaedu/model/network/auth.dart';
 import 'package:rayaedu/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
   @override
@@ -189,7 +190,6 @@ class _LoadingState extends State<SignIn> {
       backgroundColor: const Color(0xFF005E39),
       body: Stack(
         children: [
-          // ----- Header -----
           Positioned(
             top: 0,
             left: 0,

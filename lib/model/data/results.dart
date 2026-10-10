@@ -1,4 +1,3 @@
-
 class ResultsResponse {
   final String typeResponse;
   final List<ResultItem> resultsData;
@@ -11,17 +10,13 @@ class ResultsResponse {
   factory ResultsResponse.fromJson(Map<String, dynamic> json) =>
       ResultsResponse(
         typeResponse: json['typeResponse'] as String? ?? '',
-        resultsData: (json['resultsData'] as List<dynamic>? ?? [])
+        resultsData: (json['resultsData'] as List? ?? [])
             .map((e) => ResultItem.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
-
-  Map<String, dynamic> toJson() => {
-    'typeResponse': typeResponse,
-    'resultsData': resultsData.map((e) => e.toJson()).toList(),
-  };
 }
 
+/// Mirrors `ResultItem`
 class ResultItem {
   final String evaluation;
   final String termName;
@@ -41,36 +36,23 @@ class ResultItem {
     this.notes,
   });
 
-  factory ResultItem.fromJson(Map<String, dynamic> json) => ResultItem(
-    evaluation: json['evaluation'] as String? ?? '',
-    termName:
-    json['student_material__student_term__term__name'] as String? ?? '',
+  factory ResultItem.fromJson(Map<String, dynamic> j) => ResultItem(
+    evaluation: j['evaluation'] as String? ?? '',
+    termName: j['student_material__student_term__term__name'] as String? ??
+        '',
     cgpa:
-    (json['student_material__student_term__cgpa'] as num?)?.toDouble() ??
+    (j['student_material__student_term__cgpa'] as num?)?.toDouble() ??
         0.0,
-    academicYearName: json[
-    'student_material__student_term__term__academic_year__name']
+    academicYearName:
+    j['student_material__student_term__term__academic_year__name']
     as String? ??
         '',
     statusAlert:
-    json['student_material__student_term__status_alert'] as String? ??
-        '',
-    materialName: json[
+    j['student_material__student_term__status_alert'] as String? ?? '',
+    materialName: j[
     'student_material__open_material__material_skill__material__name']
     as String? ??
         '',
-    notes: json['notes'] as String?,
+    notes: j['notes'] as String?,
   );
-
-  Map<String, dynamic> toJson() => {
-    'evaluation': evaluation,
-    'student_material__student_term__term__name': termName,
-    'student_material__student_term__cgpa': cgpa,
-    'student_material__student_term__term__academic_year__name':
-    academicYearName,
-    'student_material__student_term__status_alert': statusAlert,
-    'student_material__open_material__material_skill__material__name':
-    materialName,
-    'notes': notes,
-  };
 }
