@@ -31,6 +31,24 @@ class _ResultsViewState extends State<ResultsView> {
     });
   }
 
+  Color _getEvaluationColor(String eval) {
+    if (eval.contains('ممتاز') || eval.contains('جيد جداً') || eval.contains('ناجح')) {
+      return AppColors.primary;
+    } else if (eval.contains('راسب') || eval.contains('ضعيف')) {
+      return AppColors.red;
+    }
+    return AppColors.orange;
+  }
+
+  Color _getEvaluationBg(String eval) {
+    if (eval.contains('ممتاز') || eval.contains('جيد جداً') || eval.contains('ناجح')) {
+      return AppColors.mintSurface;
+    } else if (eval.contains('راسب') || eval.contains('ضعيف')) {
+      return AppColors.red.withValues(alpha: 0.1);
+    }
+    return AppColors.orangeLight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ResultsRecordsViewModel>();
@@ -39,7 +57,7 @@ class _ResultsViewState extends State<ResultsView> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       drawer: const CustomDrawerWidget(activeRoute: AppRoutes.results),
       appBar: AppBar(
         title: Text(
@@ -52,6 +70,7 @@ class _ResultsViewState extends State<ResultsView> {
         ),
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () => viewModel.loadResults(),
         child: viewModel.isLoading
             ? const LoadingIndicatorWidget()
@@ -60,11 +79,14 @@ class _ResultsViewState extends State<ResultsView> {
                 : results.isEmpty
                     ? const EmptyStateWidget(message: 'لا توجد نتائج معلنة حالياً')
                     : ListView.separated(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         itemCount: results.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (ctx, index) {
                           final item = results[index];
+                          final evalColor = _getEvaluationColor(item.evaluation);
+                          final evalBg = _getEvaluationBg(item.evaluation);
+
                           return Container(
                             padding: const EdgeInsets.all(16),
                             decoration: AppDecorations.cardDecoration(context),
@@ -73,48 +95,91 @@ class _ResultsViewState extends State<ResultsView> {
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        item.materialName,
-                                        style: AppTextStyles.cairoBold(
-                                          fontSize: 15,
-                                          color: AppColors.black,
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.mintSurface,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.grade_outlined,
+                                              color: AppColors.primary,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              item.materialName,
+                                              style: AppTextStyles.cairoBold(
+                                                fontSize: 15,
+                                                color: AppColors.textDark,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: AppColors.mainC.withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(8),
+                                        color: evalBg,
+                                        borderRadius: BorderRadius.circular(999),
+                                        border: Border.all(
+                                          color: evalColor.withValues(alpha: 0.3),
+                                        ),
                                       ),
                                       child: Text(
                                         item.evaluation,
                                         style: AppTextStyles.cairoBold(
-                                          fontSize: 13,
-                                          color: AppColors.mainC,
+                                          fontSize: 12.5,
+                                          color: evalColor,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '${item.academicYearName} - ${item.termName}',
-                                  style: AppTextStyles.cairoMedium(
-                                    fontSize: 12,
-                                    color: AppColors.lightGray,
-                                  ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_today_outlined,
+                                      size: 13,
+                                      color: AppColors.textLight,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${item.academicYearName} • ${item.termName}',
+                                      style: AppTextStyles.cairoMedium(
+                                        fontSize: 12,
+                                        color: AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 if (item.statusAlert.isNotEmpty) ...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    item.statusAlert,
-                                    style: AppTextStyles.cairoMedium(
-                                      fontSize: 12,
-                                      color: AppColors.orange,
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.orangeLight,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.orangeBorder),
+                                    ),
+                                    child: Text(
+                                      item.statusAlert,
+                                      style: AppTextStyles.cairoMedium(
+                                        fontSize: 11.5,
+                                        color: AppColors.orangeDark,
+                                      ),
                                     ),
                                   ),
                                 ],

@@ -8,7 +8,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/locale_provider.dart';
 import '../../../../core/utils/text_scale_provider.dart';
 import '../../../common_widgets/custom_drawer.dart';
+import '../../../common_widgets/status_dialogs.dart';
 import '../../../navigation/app_routes.dart';
+import '../../auth/viewmodel/sign_in_viewmodel.dart';
 import '../viewmodel/settings_viewmodel.dart';
 
 class SettingsMenuView extends StatelessWidget {
@@ -24,7 +26,7 @@ class SettingsMenuView extends StatelessWidget {
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       drawer: const CustomDrawerWidget(activeRoute: AppRoutes.settings),
       appBar: AppBar(
         title: Text(
@@ -38,18 +40,25 @@ class SettingsMenuView extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           children: [
             // Dark Mode Switch
             Container(
               decoration: AppDecorations.cardDecoration(context),
               child: SwitchListTile(
                 value: settingsVm.isDarkMode,
-                activeThumbColor: AppColors.mainC,
-                secondary: const Icon(Icons.dark_mode_rounded, color: AppColors.mainC),
+                activeTrackColor: AppColors.primary,
+                secondary: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.mintSurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.dark_mode_rounded, color: AppColors.primary, size: 20),
+                ),
                 title: Text(
-                  langCode == 'en' ? 'Dark Theme' : 'الوضع الليلي',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.black),
+                  langCode == 'en' ? 'Dark Theme' : 'الوضع الليلي (Dark Mode)',
+                  style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.textDark),
                 ),
                 onChanged: (val) => settingsVm.toggleDarkMode(val),
               ),
@@ -61,11 +70,18 @@ class SettingsMenuView extends StatelessWidget {
               decoration: AppDecorations.cardDecoration(context),
               child: SwitchListTile(
                 value: settingsVm.isBlueAccent,
-                activeThumbColor: AppColors.blue,
-                secondary: const Icon(Icons.palette_rounded, color: AppColors.blue),
+                activeTrackColor: AppColors.blue,
+                secondary: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.blue.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.palette_rounded, color: AppColors.blue, size: 20),
+                ),
                 title: Text(
-                  langCode == 'en' ? 'Blue Accent Color' : 'اللون الأزرق الثانوي',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.black),
+                  langCode == 'en' ? 'Blue Accent Color' : 'اللون الأزرق الثانوي البديل',
+                  style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.textDark),
                 ),
                 onChanged: (val) => settingsVm.toggleBlueAccent(val),
               ),
@@ -77,11 +93,18 @@ class SettingsMenuView extends StatelessWidget {
               decoration: AppDecorations.cardDecoration(context),
               child: SwitchListTile(
                 value: langCode == 'en',
-                activeThumbColor: AppColors.mainC,
-                secondary: const Icon(Icons.language_rounded, color: AppColors.mainC),
+                activeTrackColor: AppColors.primary,
+                secondary: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.mintSurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.language_rounded, color: AppColors.primary, size: 20),
+                ),
                 title: Text(
-                  langCode == 'en' ? 'English Language' : 'تفعيل اللغة الإنجليزية',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.black),
+                  langCode == 'en' ? 'English Language' : 'واجهة اللغة الإنجليزية',
+                  style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.textDark),
                 ),
                 onChanged: (val) {
                   localeProvider.setLocale(val ? 'en' : 'ar');
@@ -95,48 +118,102 @@ class SettingsMenuView extends StatelessWidget {
               decoration: AppDecorations.cardDecoration(context),
               child: SwitchListTile(
                 value: settingsVm.notificationsEnabled,
-                activeThumbColor: AppColors.mainC,
-                secondary: const Icon(AppIcons.notification, color: AppColors.mainC),
+                activeTrackColor: AppColors.primary,
+                secondary: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: AppColors.orangeLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(AppIcons.notification, color: AppColors.orange, size: 20),
+                ),
                 title: Text(
-                  langCode == 'en' ? 'Push Notifications' : 'تفعيل الإشعارات الفورية',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.black),
+                  langCode == 'en' ? 'Push Notifications' : 'تفعيل الإشعارات والتنبيهات الفورية',
+                  style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.textDark),
                 ),
                 onChanged: (val) => settingsVm.toggleNotifications(val),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Font Scaling Slider
+            // Font Scaling Slider Card
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               decoration: AppDecorations.cardDecoration(context),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.format_size_rounded, color: AppColors.mainC),
-                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.mintSurface,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.format_size_rounded, color: AppColors.primary, size: 20),
+                      ),
+                      const SizedBox(width: 12),
                       Text(
-                        langCode == 'en' ? 'Text Scaling' : 'حجم الخط في التطبيق',
-                        style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.black),
+                        langCode == 'en' ? 'Text Scaling' : 'حجم خط النصوص في التطبيق',
+                        style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.textDark),
                       ),
                       const Spacer(),
-                      Text(
-                        '${(textScaleProvider.scale * 100).toInt()}%',
-                        style: AppTextStyles.cairoBold(fontSize: 14, color: AppColors.mainC),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${(textScaleProvider.scale * 100).toInt()}%',
+                          style: AppTextStyles.cairoBold(fontSize: 13, color: AppColors.primary),
+                        ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
                   Slider(
                     value: textScaleProvider.scale,
                     min: 0.85,
                     max: 1.30,
                     divisions: 3,
-                    activeColor: AppColors.mainC,
+                    activeColor: AppColors.primary,
+                    inactiveColor: const Color(0xFFE2E8F0),
                     onChanged: (val) => textScaleProvider.setScale(val),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Sign out button
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.orange, width: 1.5),
+                foregroundColor: AppColors.orange,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () async {
+                StatusDialogs.showLoading(context);
+                try {
+                  await context.read<SignInViewModel>().signOut();
+                } catch (_) {}
+                if (context.mounted) {
+                  StatusDialogs.hide(context);
+                  Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
+                    AppRoutes.signIn,
+                    (route) => false,
+                  );
+                }
+              },
+              icon: const Icon(AppIcons.signOut, color: AppColors.orange, size: 20),
+              label: Text(
+                langCode == 'en' ? 'Sign Out' : 'تسجيل الخروج من الحساب',
+                style: AppTextStyles.cairoBold(fontSize: 14.5, color: AppColors.orange),
               ),
             ),
           ],

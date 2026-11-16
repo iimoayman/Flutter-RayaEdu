@@ -32,7 +32,7 @@ class _NewCardViewState extends State<NewCardView> {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
           AppStrings.get('newCard', langCode),
@@ -44,40 +44,84 @@ class _NewCardViewState extends State<NewCardView> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  langCode == 'en'
-                      ? 'Request to issue a replacement student ID card.'
-                      : 'طلب استخراج كارنيه طالب بدل فاقد.',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.mainC),
+                // Info Banner
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.orangeLight,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.orangeBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(AppIcons.newCard, color: AppColors.orange, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          langCode == 'en'
+                              ? 'Request to issue a replacement student ID card.'
+                              : 'طلب استخراج كارنيه طالب (بدل فاقد أو تالف).',
+                          style: AppTextStyles.cairoBold(fontSize: 13.5, color: AppColors.orangeDark),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 18),
-                TextFormField(
-                  controller: _notesController,
-                  maxLines: 4,
-                  decoration: AppDecorations.inputDecoration(
-                    context: context,
-                    hintText: langCode == 'en' ? 'Reason / Notes' : 'سبب الطلب أو ملاحظاتك',
+
+                // Form Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: AppDecorations.cardDecoration(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'سبب الطلب أو تفاصيل الفقد',
+                        style: AppTextStyles.cairoBold(fontSize: 14, color: AppColors.textDark),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _notesController,
+                        maxLines: 4,
+                        decoration: AppDecorations.inputDecoration(
+                          context: context,
+                          hintText: langCode == 'en' ? 'Reason / Notes' : 'اكتب سبب الطلب أو أي ملاحظات ترغب في توضيحها...',
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return AppStrings.get('invaild_F', langCode);
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return AppStrings.get('invaild_F', langCode);
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 24),
+
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.mainC,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppColors.orange,
+                    foregroundColor: AppColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 2,
+                    shadowColor: AppColors.orange.withValues(alpha: 0.3),
                   ),
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
@@ -87,6 +131,7 @@ class _NewCardViewState extends State<NewCardView> {
                         addressed: 'null',
                         notes: _notesController.text.trim(),
                       );
+                      if (!context.mounted) return;
                       StatusDialogs.hide(context);
                       if (success) {
                         StatusDialogs.showSuccess(
@@ -95,7 +140,7 @@ class _NewCardViewState extends State<NewCardView> {
                           onComplete: () => Navigator.of(context).pop(),
                         );
                       } else {
-                        StatusDialogs.showError(context, 'Failed to submit request');
+                        StatusDialogs.showError(context, 'فشل إرسال الطلب، يرجى المحاولة لاحقاً');
                       }
                     }
                   },

@@ -39,7 +39,7 @@ class _RecordsViewState extends State<RecordsView> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       drawer: const CustomDrawerWidget(activeRoute: AppRoutes.records),
       appBar: AppBar(
         title: Text(
@@ -52,6 +52,7 @@ class _RecordsViewState extends State<RecordsView> {
         ),
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () => viewModel.loadRecords(),
         child: viewModel.isLoading
             ? const LoadingIndicatorWidget()
@@ -61,7 +62,7 @@ class _RecordsViewState extends State<RecordsView> {
                     ? const EmptyStateWidget(
                         message: 'لا توجد بيانات مسجلة في السجل الأكاديمي')
                     : ListView.separated(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         itemCount: records.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (ctx, index) {
@@ -72,52 +73,100 @@ class _RecordsViewState extends State<RecordsView> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  item.materialName,
-                                  style: AppTextStyles.cairoBold(
-                                    fontSize: 16,
-                                    color: AppColors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  '${item.academicYear} - ${item.termName}',
-                                  style: AppTextStyles.cairoMedium(
-                                    fontSize: 13,
-                                    color: AppColors.lightGray,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Divider(height: 1),
-                                const SizedBox(height: 10),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'اللجنة: ${item.committeeNumber}',
-                                      style: AppTextStyles.cairoBold(
-                                        fontSize: 13,
-                                        color: AppColors.mainC,
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.mintSurface,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        AppIcons.records,
+                                        color: AppColors.primary,
+                                        size: 20,
                                       ),
                                     ),
-                                    Text(
-                                      'المكان: ${item.roomName}',
-                                      style: AppTextStyles.cairoBold(
-                                        fontSize: 13,
-                                        color: AppColors.orange,
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item.materialName,
+                                            style: AppTextStyles.cairoBold(
+                                              fontSize: 15.5,
+                                              color: AppColors.textDark,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${item.academicYear} • ${item.termName}',
+                                            style: AppTextStyles.cairoRegular(
+                                              fontSize: 12,
+                                              color: AppColors.textMuted,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 14),
+                                const Divider(
+                                  color: AppColors.borderSubtle,
+                                  height: 1,
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.mintSurface,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: AppColors.mintBorder),
+                                      ),
+                                      child: Text(
+                                        'اللجنة: ${item.committeeNumber}',
+                                        style: AppTextStyles.cairoBold(
+                                          fontSize: 12.5,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.orangeLight,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: AppColors.orangeBorder),
+                                      ),
+                                      child: Text(
+                                        'المكان: ${item.roomName}',
+                                        style: AppTextStyles.cairoBold(
+                                          fontSize: 12.5,
+                                          color: AppColors.orangeDark,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                                 if (item.time.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'التوقيت: ${item.time}',
-                                    style: AppTextStyles.cairoMedium(
-                                      fontSize: 12,
-                                      color: AppColors.dGray,
-                                    ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time_rounded, size: 13, color: AppColors.textLight),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'التوقيت: ${item.time}',
+                                        style: AppTextStyles.cairoMedium(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ],

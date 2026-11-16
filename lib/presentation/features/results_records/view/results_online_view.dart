@@ -39,7 +39,7 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       drawer: const CustomDrawerWidget(activeRoute: AppRoutes.resultsOnline),
       appBar: AppBar(
         title: Text(
@@ -52,6 +52,7 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
         ),
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () => viewModel.loadOnlineResults(),
         child: viewModel.isLoading
             ? const LoadingIndicatorWidget()
@@ -59,9 +60,9 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
                 ? NoWifiWidget(onRetry: () => viewModel.loadOnlineResults())
                 : list.isEmpty
                     ? const EmptyStateWidget(
-                        message: 'لا توجد نتائج اختبارات أونلاين مسجلة')
+                        message: 'لا توجد نتائج اختبارات إلكترونية مسجلة')
                     : ListView.separated(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         itemCount: list.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (ctx, index) {
@@ -71,6 +72,19 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
                             decoration: AppDecorations.cardDecoration(context),
                             child: Row(
                               children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.mintSurface,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    AppIcons.onlineResults,
+                                    color: AppColors.primary,
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,16 +93,26 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
                                         item.materialName,
                                         style: AppTextStyles.cairoBold(
                                           fontSize: 15,
-                                          color: AppColors.black,
+                                          color: AppColors.textDark,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '${item.academicYear} - ${item.termDisplay}',
-                                        style: AppTextStyles.cairoMedium(
-                                          fontSize: 12,
-                                          color: AppColors.lightGray,
-                                        ),
+                                      const SizedBox(height: 3),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.calendar_today_outlined,
+                                            size: 12,
+                                            color: AppColors.textLight,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${item.academicYear} • ${item.termDisplay}',
+                                            style: AppTextStyles.cairoRegular(
+                                              fontSize: 12,
+                                              color: AppColors.textMuted,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -97,14 +121,15 @@ class _ResultsOnlineViewState extends State<ResultsOnlineView> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: AppColors.orange.withValues(alpha: 0.12),
+                                    color: AppColors.orangeLight,
                                     borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: AppColors.orangeBorder),
                                   ),
                                   child: Text(
                                     '${item.totalDegree} / ${item.maxDegree}',
                                     style: AppTextStyles.cairoBold(
                                       fontSize: 14,
-                                      color: AppColors.orange,
+                                      color: AppColors.orangeDark,
                                     ),
                                   ),
                                 ),

@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AppIcons {
-  // Material icons converted and matching the vector XML shapes exactly
+  /// Render native converted SVG icon
+  static Widget svg(
+    String assetPath, {
+    double? width,
+    double? height,
+    Color? color,
+    BoxFit fit = BoxFit.contain,
+  }) {
+    return SvgPicture.asset(
+      assetPath,
+      width: width,
+      height: height,
+      colorFilter:
+          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
+      fit: fit,
+    );
+  }
+
+  // Material fallback icons matching native XML shapes
   static const IconData home = Icons.home_rounded;
   static const IconData studentService = Icons.school_rounded;
   static const IconData exam = Icons.assignment_rounded;

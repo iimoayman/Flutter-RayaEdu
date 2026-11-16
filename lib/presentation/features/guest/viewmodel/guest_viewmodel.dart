@@ -5,12 +5,14 @@ import '../../../../domain/repositories/student_repository.dart';
 class AcademicProgramModel {
   final String titleKey;
   final String detailsKey;
-  final IconData icon;
+  final String iconAsset;
+  final String detailImageAsset;
 
   AcademicProgramModel({
     required this.titleKey,
     required this.detailsKey,
-    required this.icon,
+    required this.iconAsset,
+    required this.detailImageAsset,
   });
 }
 
@@ -47,17 +49,20 @@ class GuestViewModel with ChangeNotifier {
     AcademicProgramModel(
       titleKey: 'bisName',
       detailsKey: 'BisDetails',
-      icon: Icons.computer_rounded,
+      iconAsset: 'assets/images/cpu.webp',
+      detailImageAsset: 'assets/images/bis_img.jpg',
     ),
     AcademicProgramModel(
       titleKey: 'ACCname',
       detailsKey: 'ACCDetails',
-      icon: Icons.calculate_rounded,
+      iconAsset: 'assets/images/accounting.webp',
+      detailImageAsset: 'assets/images/acc_img.jpg',
     ),
     AcademicProgramModel(
       titleKey: 'TradeName',
       detailsKey: 'TradeDetails',
-      icon: Icons.public_rounded,
+      iconAsset: 'assets/images/port.webp',
+      detailImageAsset: 'assets/images/trade_img.jpg',
     ),
   ];
 

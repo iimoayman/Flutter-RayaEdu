@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -41,10 +43,17 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
     final student = viewModel.studentData;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
         title: Text(
-          langCode == 'en' ? 'Digital ID' : 'الهوية الرقمية',
+          langCode == 'en' ? 'Digital ID' : 'الهوية الرقمية للدارس',
           style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.white),
         ),
         leading: IconButton(
@@ -55,61 +64,113 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
       body: viewModel.isLoading
           ? const LoadingIndicatorWidget()
           : RefreshIndicator(
+              color: AppColors.primary,
               onRefresh: () => viewModel.loadStudentData(),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
                 child: Column(
                   children: [
                     // Digital ID Card
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(22),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.mainC, AppColors.darkGreen],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
+                        gradient: AppColors.headerGradient,
+                        borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.mainC.withValues(alpha: 0.35),
-                            blurRadius: 14,
-                            offset: const Offset(0, 6),
+                            color: AppColors.primaryDark.withValues(alpha: 0.35),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
+                          // Card Header: Institute Info & Year
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Image.asset(
+                                      'assets/images/logo_raster.webp',
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    AppStrings.get('rayatxt', langCode),
+                                    style: AppTextStyles.cairoBold(
+                                      fontSize: 14,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  student?.academicYear ?? '2025/2026',
+                                  style: AppTextStyles.cairoMedium(
+                                    fontSize: 11,
+                                    color: AppColors.mintSurface,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Student Photo & Info
                           Row(
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(40),
-                                child: student != null && student.photoUrl.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: 'https://student.rayaedu.org${student.photoUrl}',
-                                        width: 75,
-                                        height: 75,
-                                        fit: BoxFit.cover,
-                                        placeholder: (_, __) => Container(
-                                          width: 75,
-                                          height: 75,
-                                          color: Colors.white24,
-                                          child: const Icon(AppIcons.person, color: Colors.white),
+                              Container(
+                                width: 78,
+                                height: 78,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.orange, width: 2.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(40),
+                                  child: student != null && student.photoUrl.isNotEmpty
+                                      ? CachedNetworkImage(
+                                          imageUrl: 'https://student.rayaedu.org${student.photoUrl}',
+                                          fit: BoxFit.cover,
+                                          placeholder: (_, __) => Image.asset(
+                                            'assets/images/profile.webp',
+                                            fit: BoxFit.cover,
+                                          ),
+                                          errorWidget: (_, __, ___) => Image.asset(
+                                            'assets/images/profile.webp',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/images/profile.webp',
+                                          fit: BoxFit.cover,
                                         ),
-                                        errorWidget: (_, __, ___) => Container(
-                                          width: 75,
-                                          height: 75,
-                                          color: Colors.white24,
-                                          child: const Icon(AppIcons.person, color: Colors.white),
-                                        ),
-                                      )
-                                    : Container(
-                                        width: 75,
-                                        height: 75,
-                                        color: Colors.white24,
-                                        child: const Icon(AppIcons.person, color: Colors.white, size: 40),
-                                      ),
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -119,24 +180,23 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
                                     Text(
                                       student?.name ?? 'اسم الطالب',
                                       style: AppTextStyles.cairoExtraBold(
-                                        fontSize: 17,
+                                        fontSize: 16,
                                         color: AppColors.white,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
-                                      '${AppStrings.get('stu_id', langCode)}: ${student?.code ?? '---'}',
-                                      style: AppTextStyles.cairoBold(
-                                        fontSize: 13,
-                                        color: AppColors.hello,
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      student?.academicYear ?? '2025/2026',
-                                      style: AppTextStyles.cairoMedium(
-                                        fontSize: 12,
-                                        color: Colors.white70,
+                                      child: Text(
+                                        '${AppStrings.get('stu_id', langCode)}: ${student?.code ?? 'غير متوفر'}',
+                                        style: AppTextStyles.cairoBold(
+                                          fontSize: 12,
+                                          color: AppColors.mintSurface,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -144,29 +204,61 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
-                          const Divider(color: Colors.white24, thickness: 1),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 18),
+                          Divider(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            thickness: 1,
+                            height: 1,
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Department & Level Badges
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                _mapDepartment(student?.department, langCode),
-                                style: AppTextStyles.cairoBold(fontSize: 13, color: AppColors.white),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  _mapDepartment(student?.department, langCode),
+                                  style: AppTextStyles.cairoBold(fontSize: 12, color: AppColors.white),
+                                ),
                               ),
-                              Text(
-                                _mapLevel(student?.level, langCode),
-                                style: AppTextStyles.cairoBold(fontSize: 13, color: AppColors.orange),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.orange.withValues(alpha: 0.25),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: AppColors.orange.withValues(alpha: 0.6),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  _mapLevel(student?.level, langCode),
+                                  style: AppTextStyles.cairoBold(fontSize: 12, color: AppColors.orangeLight),
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 20),
+
                           // QR Code Container
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: QrImageView(
                               data: student?.code?.toString() ?? 'RAYA_EDU_STUDENT',
@@ -184,18 +276,31 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                             decoration: AppDecorations.cardDecoration(context),
                             child: Column(
                               children: [
-                                Text(
-                                  'CGPA',
-                                  style: AppTextStyles.cairoBold(fontSize: 14, color: AppColors.lightGray),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.mintSurface,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.analytics_rounded,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 10),
                                 Text(
-                                  student?.cgpa?.toStringAsFixed(2) ?? '--',
-                                  style: AppTextStyles.cairoExtraBold(fontSize: 22, color: AppColors.mainC),
+                                  langCode == 'en' ? 'CGPA' : 'المعدل التراكمي',
+                                  style: AppTextStyles.cairoBold(fontSize: 13, color: AppColors.textMuted),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  student?.cgpa?.toStringAsFixed(2) ?? 'غير متوفر',
+                                  style: AppTextStyles.cairoExtraBold(fontSize: 22, color: AppColors.primary),
                                 ),
                               ],
                             ),
@@ -204,17 +309,30 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
                         const SizedBox(width: 14),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                             decoration: AppDecorations.cardDecoration(context),
                             child: Column(
                               children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.orangeLight,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.schedule_rounded,
+                                    color: AppColors.orange,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
                                 Text(
                                   langCode == 'en' ? 'Credit Hours' : 'الساعات المسجلة',
-                                  style: AppTextStyles.cairoBold(fontSize: 14, color: AppColors.lightGray),
+                                  style: AppTextStyles.cairoBold(fontSize: 13, color: AppColors.textMuted),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 Text(
-                                  student?.hours?.toString() ?? '--',
+                                  student?.hours?.toString() ?? 'غير متوفر',
                                   style: AppTextStyles.cairoExtraBold(fontSize: 22, color: AppColors.orange),
                                 ),
                               ],
@@ -225,25 +343,31 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Shake Info Card
+                    // Shake Phone Feedback
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.mainC.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.mainC.withValues(alpha: 0.2)),
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.borderSubtle),
                       ),
-                      child: Row(
+                      child: Column(
                         children: [
-                          const Icon(Icons.vibration_rounded, color: AppColors.mainC, size: 30),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              langCode == 'en'
-                                  ? 'Shake your phone to report any problem or bug directly!'
-                                  : 'قم بهز هاتفك للإبلاغ الفوري عن أي مشكلة أو استفسار!',
-                              style: AppTextStyles.cairoMedium(fontSize: 13, color: AppColors.mainC),
+                          Lottie.asset(
+                            'assets/lottie/shake.json',
+                            width: 110,
+                            height: 110,
+                            fit: BoxFit.contain,
+                            repeat: true,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            AppStrings.get('shakePhone', langCode),
+                            style: AppTextStyles.cairoBold(
+                              fontSize: 14,
+                              color: AppColors.primary,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -256,76 +380,13 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
   }
 
   void _showShakeDialog(BuildContext context) {
-    final controller = TextEditingController();
-    final langCode = context.read<LocaleProvider>().locale.languageCode;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          left: 20,
-          right: 20,
-          top: 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              AppStrings.get('shake_report_title', langCode),
-              style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.black),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: AppStrings.get('shake_report_hint', langCode),
-                filled: true,
-                fillColor: AppColors.bgColorLight,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.mainC,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: () async {
-                final text = controller.text.trim();
-                if (text.isNotEmpty) {
-                  Navigator.of(ctx).pop();
-                  StatusDialogs.showLoading(context);
-                  final success = await context.read<DigitalIdViewModel>().sendProblemReport(text);
-                  StatusDialogs.hide(context);
-                  if (success) {
-                    StatusDialogs.showSuccess(context, AppStrings.get('sended', langCode));
-                  } else {
-                    StatusDialogs.showError(context, 'Failed to send problem');
-                  }
-                }
-              },
-              child: Text(
-                AppStrings.get('shake_send', langCode),
-                style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
+      builder: (ctx) => _ShakeReportBottomSheet(parentContext: context),
     );
   }
 
@@ -356,5 +417,113 @@ class _MyDigitalIdViewState extends State<MyDigitalIdView> {
       default:
         return isEn ? 'Level 1' : 'الفرقة الأولى';
     }
+  }
+}
+
+class _ShakeReportBottomSheet extends StatefulWidget {
+  final BuildContext parentContext;
+  const _ShakeReportBottomSheet({required this.parentContext});
+
+  @override
+  State<_ShakeReportBottomSheet> createState() => _ShakeReportBottomSheetState();
+}
+
+class _ShakeReportBottomSheetState extends State<_ShakeReportBottomSheet> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final langCode = context.watch<LocaleProvider>().locale.languageCode;
+
+    return Container(
+      decoration: AppDecorations.roundedTopContainer(context, radius: 28),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        left: 20,
+        right: 20,
+        top: 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.borderSubtle,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            AppStrings.get('shake_report_title', langCode),
+            style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.textDark),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            maxLines: 4,
+            decoration: AppDecorations.inputDecoration(
+              context: context,
+              hintText: AppStrings.get('shake_report_hint', langCode),
+            ),
+          ),
+          const SizedBox(height: 18),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 0,
+            ),
+            onPressed: () async {
+              final text = _controller.text.trim();
+              if (text.isNotEmpty) {
+                final parentCtx = widget.parentContext;
+                Navigator.of(context).pop();
+                if (!parentCtx.mounted) return;
+                StatusDialogs.showLoading(parentCtx);
+                final success = await parentCtx
+                    .read<DigitalIdViewModel>()
+                    .sendProblemReport(text);
+                if (!parentCtx.mounted) return;
+                StatusDialogs.hide(parentCtx);
+                if (success) {
+                  StatusDialogs.showSuccess(
+                    parentCtx,
+                    AppStrings.get('sended', langCode),
+                  );
+                } else {
+                  StatusDialogs.showError(parentCtx, 'فشل إرسال البلاغ');
+                }
+              }
+            },
+            child: Text(
+              AppStrings.get('shake_send', langCode),
+              style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

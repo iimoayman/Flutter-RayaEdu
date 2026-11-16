@@ -22,6 +22,7 @@
         "http_parser",
         "intl",
         "local_auth",
+        "lottie",
         "mobile_scanner",
         "provider",
         "qr_flutter",
@@ -59,6 +60,17 @@
         "stack_trace",
         "stream_channel",
         "test_api",
+        "vector_math"
+      ]
+    },
+    {
+      "name": "lottie",
+      "version": "3.7.0",
+      "dependencies": [
+        "archive",
+        "flutter",
+        "http",
+        "path",
         "vector_math"
       ]
     },
@@ -396,6 +408,24 @@
       ]
     },
     {
+      "name": "http",
+      "version": "1.6.0",
+      "dependencies": [
+        "async",
+        "http_parser",
+        "meta",
+        "web"
+      ]
+    },
+    {
+      "name": "archive",
+      "version": "4.7.1",
+      "dependencies": [
+        "path",
+        "posix"
+      ]
+    },
+    {
       "name": "url_launcher_windows",
       "version": "3.1.6",
       "dependencies": [
@@ -523,16 +553,6 @@
         "flutter",
         "http",
         "vector_graphics_codec"
-      ]
-    },
-    {
-      "name": "http",
-      "version": "1.6.0",
-      "dependencies": [
-        "async",
-        "http_parser",
-        "meta",
-        "web"
       ]
     },
     {
@@ -910,6 +930,15 @@
       "dependencies": [
         "source_span",
         "string_scanner"
+      ]
+    },
+    {
+      "name": "posix",
+      "version": "6.5.4",
+      "dependencies": [
+        "ffi",
+        "meta",
+        "path"
       ]
     },
     {

@@ -49,6 +49,7 @@ dependencies:
   cached_network_image: ^3.3.1
   url_launcher: ^6.2.5
   intl: ^0.20.2
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -57,3 +58,25 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/
+    - assets/raw/
+
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/cairoblack.ttf
+          weight: 900
+        - asset: assets/fonts/cairoextrabold.ttf
+          weight: 800
+    - family: TBold
+      fonts:
+        - asset: assets/fonts/t_bold.ttf
+          weight: 700
+    - family: TMed
+      fonts:
+        - asset: assets/fonts/t_med.ttf
+          weight: 500

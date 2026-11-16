@@ -35,28 +35,31 @@ class SignInViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> signOut() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await repository.signOut();
+    } catch (_) {}
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool> login(String userCode, String nationalId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (_selectedRole == SignInRole.admin) {
-        final success = await repository.adminLogin(userCode, nationalId);
-        _isLoading = false;
+      final res = await repository.login(userCode, nationalId);
+      _isLoading = false;
+      if (res.success) {
         notifyListeners();
-        return success;
+        return true;
       } else {
-        final res = await repository.login(userCode, nationalId);
-        _isLoading = false;
-        if (res.success) {
-          notifyListeners();
-          return true;
-        } else {
-          _errorMessage = res.errors?.firstOrNull ?? 'login_failed';
-          notifyListeners();
-          return false;
-        }
+        _errorMessage = res.errors?.firstOrNull ?? 'login_failed';
+        notifyListeners();
+        return false;
       }
     } catch (e) {
       _isLoading = false;

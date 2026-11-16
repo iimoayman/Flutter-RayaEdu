@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/locale_provider.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 import '../../../common_widgets/status_dialogs.dart';
 import '../../../navigation/app_routes.dart';
 import '../viewmodel/sign_in_viewmodel.dart';
@@ -22,6 +22,7 @@ class _SignInViewState extends State<SignInView> {
   final _formKey = GlobalKey<FormState>();
   final _userCodeController = TextEditingController();
   final _nationalIdController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -36,7 +37,7 @@ class _SignInViewState extends State<SignInView> {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
@@ -45,164 +46,199 @@ class _SignInViewState extends State<SignInView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 10),
-                // Top Brand Card
+                const SizedBox(height: 8),
+
+                // Top Institutional Header Card
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                   decoration: BoxDecoration(
-                    color: AppColors.mainC,
-                    borderRadius: BorderRadius.circular(20),
+                    gradient: AppColors.headerGradient,
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.mainC.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        color: AppColors.primaryDark.withValues(alpha: 0.25),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
                   child: Column(
                     children: [
+                      Container(
+                        width: 84,
+                        height: 84,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset(
+                          'assets/images/logo_raster.webp',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         AppStrings.get('rayatxt', langCode),
                         style: AppTextStyles.cairoExtraBold(
-                          fontSize: 24,
+                          fontSize: 22,
                           color: AppColors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 6),
-                      Text(
-                        AppStrings.get('portalOfRaya', langCode),
-                        style: AppTextStyles.cairoBold(
-                          fontSize: 14,
-                          color: AppColors.hello,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        textAlign: TextAlign.center,
+                        child: Text(
+                          AppStrings.get('portalOfRaya', langCode),
+                          style: AppTextStyles.cairoMedium(
+                            fontSize: 13,
+                            color: AppColors.mintSurface,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Role Selector Chips
-                Row(
-                  children: [
-                    _buildRoleChip(
-                      context,
-                      title: langCode == 'en' ? 'Student' : 'طالب',
-                      role: SignInRole.student,
-                      current: viewModel.selectedRole,
-                    ),
-                    const SizedBox(width: 8),
-                    _buildRoleChip(
-                      context,
-                      title: langCode == 'en' ? 'Professor' : 'دكتور',
-                      role: SignInRole.professor,
-                      current: viewModel.selectedRole,
-                    ),
-                    const SizedBox(width: 8),
-                    _buildRoleChip(
-                      context,
-                      title: langCode == 'en' ? 'Admin' : 'مشرف',
-                      role: SignInRole.admin,
-                      current: viewModel.selectedRole,
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 20),
 
-                // Inputs
-                TextFormField(
-                  controller: _userCodeController,
-                  decoration: AppDecorations.inputDecoration(
-                    context: context,
-                    hintText: AppStrings.get('usernametxt', langCode),
-                    prefixIcon: const Icon(AppIcons.person, color: AppColors.mainC),
+                // Form Container Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: AppDecorations.cardDecoration(
+                    context,
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return AppStrings.get('invaild_F', langCode);
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Username / Student ID Input
+                      TextFormField(
+                        controller: _userCodeController,
+                        keyboardType: TextInputType.text,
+                        decoration: AppDecorations.inputDecoration(
+                          context: context,
+                          hintText: AppStrings.get('usernametxt', langCode),
+                          prefixIcon: const Icon(AppIcons.person, color: AppColors.primary, size: 22),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return AppStrings.get('invaild_F', langCode);
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
 
-                TextFormField(
-                  controller: _nationalIdController,
-                  obscureText: true,
-                  decoration: AppDecorations.inputDecoration(
-                    context: context,
-                    hintText: AppStrings.get('passwordtxt', langCode),
-                    prefixIcon: const Icon(Icons.lock_rounded, color: AppColors.mainC),
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return AppStrings.get('invaild_S', langCode);
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Terms and Conditions Link
-                InkWell(
-                  onTap: () => _showTermsDialog(context, langCode),
-                  child: Text(
-                    AppStrings.get('terms_conditions_clickable', langCode),
-                    style: AppTextStyles.cairoBold(
-                      fontSize: 13,
-                      color: AppColors.mainC,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Sign In Button
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      StatusDialogs.showLoading(context);
-                      final success = await viewModel.login(
-                        _userCodeController.text.trim(),
-                        _nationalIdController.text.trim(),
-                      );
-                      StatusDialogs.hide(context);
-
-                      if (success) {
-                        if (mounted) {
-                          StatusDialogs.showSuccess(
-                            context,
-                            AppStrings.get('login_success', langCode),
-                            onComplete: () {
-                              Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+                      // National ID / Password Input
+                      TextFormField(
+                        controller: _nationalIdController,
+                        obscureText: _obscurePassword,
+                        keyboardType: TextInputType.text,
+                        decoration: AppDecorations.inputDecoration(
+                          context: context,
+                          hintText: AppStrings.get('passwordtxt', langCode),
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.primary, size: 22),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              color: AppColors.textMuted,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
                             },
-                          );
-                        }
-                      } else {
-                        if (mounted) {
-                          StatusDialogs.showError(
-                            context,
-                            AppStrings.get(viewModel.errorMessage ?? 'login_failed', langCode),
-                          );
-                        }
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.mainC,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    langCode == 'en' ? 'Sign In' : 'تسجيل الدخول',
-                    style: AppTextStyles.cairoBold(fontSize: 16, color: AppColors.white),
+                          ),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return AppStrings.get('invaild_S', langCode);
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Terms and Conditions Link
+                      Center(
+                        child: InkWell(
+                          onTap: () => _showTermsDialog(context, langCode),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: Text(
+                              AppStrings.get('terms_conditions_clickable', langCode),
+                              style: AppTextStyles.cairoBold(
+                                fontSize: 13,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Sign In Button
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            StatusDialogs.showLoading(context);
+                            final success = await viewModel.login(
+                              _userCodeController.text.trim(),
+                              _nationalIdController.text.trim(),
+                            );
+                            if (!context.mounted) return;
+                            StatusDialogs.hide(context);
+
+                            if (success) {
+                              StatusDialogs.showSuccess(
+                                context,
+                                AppStrings.get('login_success', langCode),
+                                onComplete: () {
+                                  Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+                                },
+                              );
+                            } else {
+                              StatusDialogs.showError(
+                                context,
+                                AppStrings.get(viewModel.errorMessage ?? 'login_failed', langCode),
+                              );
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 2,
+                          shadowColor: AppColors.primary.withValues(alpha: 0.3),
+                        ),
+                        child: Text(
+                          langCode == 'en' ? 'Sign In' : 'تسجيل الدخول',
+                          style: AppTextStyles.cairoBold(fontSize: 16, color: AppColors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Secondary Links (Visitors & Admission)
                 Row(
@@ -213,17 +249,17 @@ class _SignInViewState extends State<SignInView> {
                           Navigator.of(context).pushNamed(AppRoutes.guest);
                         },
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.mainC),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: AppColors.primary, width: 1.2),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                         child: Text(
                           AppStrings.get('guest_portal', langCode),
                           style: AppTextStyles.cairoBold(
                             fontSize: 13,
-                            color: AppColors.mainC,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -238,11 +274,14 @@ class _SignInViewState extends State<SignInView> {
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.orange,
-                          disabledBackgroundColor: Colors.grey.shade400,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          foregroundColor: AppColors.white,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                           ),
+                          elevation: 2,
+                          shadowColor: AppColors.orange.withValues(alpha: 0.3),
                         ),
                         child: Text(
                           langCode == 'en' ? 'Apply Now' : 'التقديم للالتحاق',
@@ -257,58 +296,56 @@ class _SignInViewState extends State<SignInView> {
                 ),
                 const SizedBox(height: 16),
 
-                // Contact WhatsApp Support
-                TextButton.icon(
-                  onPressed: () async {
-                    final uri = Uri.parse('https://wa.me/201005595737');
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri, mode: LaunchMode.externalApplication);
-                    }
-                  },
-                  icon: const Icon(AppIcons.phone, color: AppColors.whatsApp, size: 20),
-                  label: Text(
-                    langCode == 'en' ? 'Support via WhatsApp' : 'تواصل معنا عبر واتساب',
-                    style: AppTextStyles.cairoBold(
-                      fontSize: 13,
-                      color: AppColors.whatsApp,
+                // WhatsApp Support Link
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.borderSubtle, width: 1),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => UrlLauncherHelper.launchExternalUrl(
+                        context,
+                        'https://wa.me/201005595737',
+                        fallbackTitle: 'الدعم الفني عبر واتساب',
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFE8F5E9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                AppIcons.phone,
+                                color: AppColors.whatsApp,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              langCode == 'en' ? 'Support via WhatsApp' : 'تواصل معنا عبر واتساب',
+                              style: AppTextStyles.cairoBold(
+                                fontSize: 13,
+                                color: AppColors.whatsApp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleChip(
-    BuildContext context, {
-    required String title,
-    required SignInRole role,
-    required SignInRole current,
-  }) {
-    final isSelected = role == current;
-    return Expanded(
-      child: InkWell(
-        onTap: () => context.read<SignInViewModel>().setRole(role),
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.mainC : Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? AppColors.mainC : Colors.grey.shade300,
-            ),
-          ),
-          child: Text(
-            title,
-            style: AppTextStyles.cairoBold(
-              fontSize: 13,
-              color: isSelected ? AppColors.white : AppColors.black,
-            ),
-            textAlign: TextAlign.center,
           ),
         ),
       ),
@@ -319,26 +356,42 @@ class _SignInViewState extends State<SignInView> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           AppStrings.get('terms_conditions_clickable', langCode),
-          style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.mainC),
+          style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.primary),
           textAlign: TextAlign.center,
         ),
-        content: SingleChildScrollView(
-          child: Text(
-            AppStrings.get('terms_conditions_all', langCode),
-            style: AppTextStyles.cairoMedium(fontSize: 14, color: AppColors.dGray),
-            textAlign: TextAlign.start,
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 350),
+          child: SingleChildScrollView(
+            child: Text(
+              AppStrings.get('terms_conditions_all', langCode),
+              style: AppTextStyles.cairoMedium(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.start,
+            ),
           ),
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.mainC),
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              langCode == 'en' ? 'Agree' : 'موافق',
-              style: AppTextStyles.cairoBold(fontSize: 14, color: AppColors.white),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                langCode == 'en' ? 'Agree' : 'موافق',
+                style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.white),
+              ),
             ),
           ),
         ],

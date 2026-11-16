@@ -57,13 +57,29 @@ class StudentAchievements {
   });
 
   factory StudentAchievements.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic val) {
+      if (val == null) return 0;
+      if (val is int) return val;
+      if (val is num) return val.toInt();
+      if (val is String) return int.tryParse(val) ?? 0;
+      return 0;
+    }
+
+    double parseDouble(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is double) return val;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0.0;
+      return 0.0;
+    }
+
     return StudentAchievements(
-      countMaterials: json['count_materials'] ?? 0,
-      countChapters: json['count_chapters'] ?? 0,
-      countCompletedChapters: json['count_completed_chapters'] ?? 0,
-      countExamChapters: json['count_examChapters'] ?? 0,
-      countExamChaptersDone: json['count_examChapters_done'] ?? 0,
-      attendanceRate: (json['attendanceRate'] as num?)?.toDouble() ?? 0.0,
+      countMaterials: parseInt(json['count_materials'] ?? json['countMaterials']),
+      countChapters: parseInt(json['count_chapters'] ?? json['countChapters']),
+      countCompletedChapters: parseInt(json['count_completed_chapters'] ?? json['countCompletedChapters']),
+      countExamChapters: parseInt(json['count_examChapters'] ?? json['count_exam_chapters'] ?? json['countExamChapters']),
+      countExamChaptersDone: parseInt(json['count_examChapters_done'] ?? json['count_exam_chapters_done'] ?? json['countExamChaptersDone']),
+      attendanceRate: parseDouble(json['attendanceRate'] ?? json['attendance_rate']),
     );
   }
 }

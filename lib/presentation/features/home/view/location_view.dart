@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/locale_provider.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 
 class LocationView extends StatefulWidget {
   const LocationView({Key? key}) : super(key: key);
@@ -32,12 +32,29 @@ class _LocationViewState extends State<LocationView> {
   String? _selectedPlace;
   String? _selectedInfo;
 
+  String? _getFloorImage(String? info) {
+    if (info == null) return null;
+    if (info.contains('الأول')) return 'assets/images/floor_one.webp';
+    if (info.contains('الثاني')) return 'assets/images/floor_two.webp';
+    if (info.contains('الثالث')) return 'assets/images/floor_three.webp';
+    if (info.contains('الرابع')) return 'assets/images/floor_four.webp';
+    return 'assets/images/floor_one.webp';
+  }
+
+  Future<void> _openCampusMap() async {
+    await UrlLauncherHelper.launchExternalUrl(
+      context,
+      'https://maps.google.com/?q=Raya+Higher+Institute',
+      fallbackTitle: 'موقع المعهد على الخريطة',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
           AppStrings.get('WhereIsIt', langCode),
@@ -50,7 +67,8 @@ class _LocationViewState extends State<LocationView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.map_rounded, color: AppColors.white),
-            onPressed: () => _openCampusMap(),
+            tooltip: 'موقع المعهد على الخريطة',
+            onPressed: _openCampusMap,
           ),
         ],
       ),
@@ -60,44 +78,73 @@ class _LocationViewState extends State<LocationView> {
             // Selected Place Display
             if (_selectedPlace != null) ...[
               Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppColors.mainC,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.mainC.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.all(20),
+                decoration: AppDecorations.cardDecoration(
+                  context,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppColors.mintBorder, width: 1.2),
                 ),
-                child: Row(
+                child: Column(
                   children: [
-                    const Icon(AppIcons.location, color: AppColors.orange, size: 36),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _selectedPlace!,
-                            style: AppTextStyles.cairoBold(
-                              fontSize: 16,
-                              color: AppColors.white,
-                            ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.mintSurface,
+                            shape: BoxShape.circle,
                           ),
-                          Text(
-                            _selectedInfo!,
-                            style: AppTextStyles.cairoMedium(
-                              fontSize: 14,
-                              color: AppColors.hello,
-                            ),
+                          child: const Icon(
+                            Icons.location_on_rounded,
+                            color: AppColors.primary,
+                            size: 22,
                           ),
-                        ],
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _selectedPlace!,
+                          style: AppTextStyles.cairoExtraBold(
+                            fontSize: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.orangeLight,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: AppColors.orangeBorder),
+                      ),
+                      child: Text(
+                        _selectedInfo!,
+                        style: AppTextStyles.cairoBold(
+                          fontSize: 13,
+                          color: AppColors.orangeDark,
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    if (_getFloorImage(_selectedInfo) != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.borderSubtle),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Image.asset(
+                            _getFloorImage(_selectedInfo)!,
+                            height: 180,
+                            width: double.infinity,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -106,41 +153,79 @@ class _LocationViewState extends State<LocationView> {
             // Locations Directory
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 itemCount: _locations.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (ctx, index) {
                   final place = _locations.keys.elementAt(index);
                   final info = _locations[place]!;
+                  final isSelected = _selectedPlace == place;
 
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedPlace = place;
-                        _selectedInfo = info;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: AppDecorations.cardDecoration(context),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.place_outlined,
-                              color: AppColors.mainC, size: 24),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              place,
-                              style: AppTextStyles.cairoBold(
-                                fontSize: 14,
-                                color: AppColors.black,
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedPlace = place;
+                          _selectedInfo = info;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(18),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(16),
+                        decoration: AppDecorations.cardDecoration(
+                          context,
+                          borderRadius: BorderRadius.circular(18),
+                          border: isSelected
+                              ? Border.all(color: AppColors.primary, width: 1.5)
+                              : null,
+                          color: isSelected ? AppColors.mintSurface : null,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: isSelected ? AppColors.white : AppColors.mintSurface,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.place_rounded,
+                                color: isSelected ? AppColors.primary : AppColors.primaryLight,
+                                size: 22,
                               ),
                             ),
-                          ),
-                          const Icon(AppIcons.forwardArrow,
-                              color: AppColors.lightGray, size: 16),
-                        ],
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    place,
+                                    style: AppTextStyles.cairoBold(
+                                      fontSize: 15,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    info,
+                                    style: AppTextStyles.cairoRegular(
+                                      fontSize: 13,
+                                      color: AppColors.textMuted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: isSelected ? AppColors.primary : AppColors.textLight,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -151,14 +236,5 @@ class _LocationViewState extends State<LocationView> {
         ),
       ),
     );
-  }
-
-  void _openCampusMap() async {
-    const mapUrl =
-        'https://www.google.com/maps/d/u/0/edit?mid=1CBRdb7CbqvJQhWTLirS_pxB0qBkj9n8&usp=sharing';
-    final uri = Uri.parse(mapUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
   }
 }

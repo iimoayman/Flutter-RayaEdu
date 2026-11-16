@@ -20,12 +20,12 @@ class ProgramDetailsView extends StatelessWidget {
     if (program == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('No Program Selected')),
+        body: const Center(child: Text('لم يتم اختيار برنامج دراسي')),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
           AppStrings.get(program.titleKey, langCode),
@@ -38,22 +38,26 @@ class ProgramDetailsView extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             decoration: AppDecorations.cardDecoration(context),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Center(
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
                   child: Container(
-                    width: 90,
-                    height: 90,
                     decoration: BoxDecoration(
-                      color: AppColors.mainC.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.borderSubtle),
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Icon(program.icon, size: 45, color: AppColors.mainC),
+                    child: Image.asset(
+                      program.detailImageAsset,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -61,18 +65,19 @@ class ProgramDetailsView extends StatelessWidget {
                   AppStrings.get(program.titleKey, langCode),
                   style: AppTextStyles.cairoExtraBold(
                     fontSize: 20,
-                    color: AppColors.mainC,
+                    color: AppColors.primary,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                const Divider(),
+                const Divider(color: AppColors.borderSubtle, height: 1),
                 const SizedBox(height: 16),
                 Text(
                   AppStrings.get(program.detailsKey, langCode),
                   style: AppTextStyles.cairoMedium(
                     fontSize: 14,
-                    color: AppColors.dGray,
+                    color: AppColors.textSecondary,
+                    height: 1.7,
                   ),
                   textAlign: TextAlign.start,
                 ),

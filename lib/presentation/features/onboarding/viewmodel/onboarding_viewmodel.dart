@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../data/datasources/local_datasource.dart';
 
 class OnboardingItemModel {
-  final IconData icon;
+  final String lottieAsset;
   final String titleKey;
   final String bodyKey;
 
   OnboardingItemModel({
-    required this.icon,
+    required this.lottieAsset,
     required this.titleKey,
     required this.bodyKey,
   });
@@ -24,17 +24,17 @@ class OnboardingViewModel with ChangeNotifier {
 
   final List<OnboardingItemModel> slides = [
     OnboardingItemModel(
-      icon: Icons.school_rounded,
+      lottieAsset: 'assets/lottie/raya.json',
       titleKey: 'onboarding_title_1',
       bodyKey: 'onboarding_text_1',
     ),
     OnboardingItemModel(
-      icon: Icons.business_center_rounded,
+      lottieAsset: 'assets/lottie/hat.json',
       titleKey: 'onboarding_title_2',
       bodyKey: 'onboarding_text_2',
     ),
     OnboardingItemModel(
-      icon: Icons.workspace_premium_rounded,
+      lottieAsset: 'assets/lottie/books.json',
       titleKey: 'onboarding_title_3',
       bodyKey: 'onboarding_text_3',
     ),

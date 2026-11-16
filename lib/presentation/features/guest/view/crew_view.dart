@@ -17,7 +17,7 @@ class CrewView extends StatelessWidget {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
           AppStrings.get('faculty_crew', langCode),
@@ -30,9 +30,9 @@ class CrewView extends StatelessWidget {
       ),
       body: SafeArea(
         child: ListView.separated(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           itemCount: viewModel.crewList.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (ctx, index) {
             final doctor = viewModel.crewList[index];
             return Container(
@@ -40,10 +40,17 @@ class CrewView extends StatelessWidget {
               decoration: AppDecorations.cardDecoration(context),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: AppColors.mainC.withValues(alpha: 0.12),
-                    radius: 26,
-                    child: const Icon(AppIcons.person, color: AppColors.mainC),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.mintSurface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.mintBorder),
+                    ),
+                    child: const Center(
+                      child: Icon(AppIcons.person, color: AppColors.primary, size: 26),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -54,16 +61,16 @@ class CrewView extends StatelessWidget {
                           doctor.name,
                           style: AppTextStyles.cairoBold(
                             fontSize: 15,
-                            color: AppColors.black,
+                            color: AppColors.textDark,
                           ),
                         ),
                         if (doctor.department.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 3),
                           Text(
                             doctor.department,
                             style: AppTextStyles.cairoMedium(
-                              fontSize: 13,
-                              color: AppColors.mainC,
+                              fontSize: 12.5,
+                              color: AppColors.primary,
                             ),
                           ),
                         ],
@@ -74,14 +81,15 @@ class CrewView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.orange.withValues(alpha: 0.12),
+                        color: AppColors.orangeLight,
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.orangeBorder),
                       ),
                       child: Text(
                         doctor.academicRank,
                         style: AppTextStyles.cairoBold(
-                          fontSize: 11,
-                          color: AppColors.orange,
+                          fontSize: 11.5,
+                          color: AppColors.orangeDark,
                         ),
                       ),
                     ),

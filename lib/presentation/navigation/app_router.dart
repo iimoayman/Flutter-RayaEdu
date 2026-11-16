@@ -112,7 +112,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => Scaffold(
             body: Center(
-              child: Text('No route defined for ${settings.name}'),
+              child: Text('المسار غير معرف: ${settings.name}'),
             ),
           ),
         );

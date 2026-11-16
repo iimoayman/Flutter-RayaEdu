@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_text_styles.dart';
 
 class StatusDialogs {
@@ -10,26 +10,29 @@ class StatusDialogs {
       barrierDismissible: false,
       builder: (ctx) => Center(
         child: Container(
-          width: 90,
-          height: 90,
+          width: 120,
+          height: 120,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.borderSubtle, width: 1),
+            boxShadow: [
               BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10,
-                offset: Offset(0, 4),
-              )
+                color: const Color(0xFF0F172A).withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
             ],
           ),
           child: const Center(
             child: SizedBox(
-              width: 45,
-              height: 45,
+              width: 48,
+              height: 48,
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.mainC),
-                strokeWidth: 3.5,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                backgroundColor: AppColors.mintSurface,
+                strokeWidth: 4,
               ),
             ),
           ),
@@ -44,20 +47,41 @@ class StatusDialogs {
     }
   }
 
-  static void showSuccess(BuildContext context, String message, {VoidCallback? onComplete}) {
+  static void showSuccess(
+    BuildContext context,
+    String message, {
+    VoidCallback? onComplete,
+  }) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(AppIcons.check, color: AppColors.mainC, size: 60),
-            const SizedBox(height: 16),
+            Container(
+              width: 84,
+              height: 84,
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: AppColors.mintSurface,
+                shape: BoxShape.circle,
+              ),
+              child: Lottie.asset(
+                'assets/lottie/imdone.json',
+                fit: BoxFit.contain,
+                repeat: false,
+              ),
+            ),
+            const SizedBox(height: 18),
             Text(
               message,
-              style: AppTextStyles.cairoBold(fontSize: 16, color: AppColors.black),
+              style: AppTextStyles.cairoBold(
+                fontSize: 16,
+                color: AppColors.textDark,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -65,9 +89,11 @@ class StatusDialogs {
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 1400), () {
-      hide(context);
-      onComplete?.call();
+    Future.delayed(const Duration(milliseconds: 1600), () {
+      if (context.mounted) {
+        hide(context);
+        onComplete?.call();
+      }
     });
   }
 
@@ -75,19 +101,58 @@ class StatusDialogs {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Icon(AppIcons.error, color: AppColors.red, size: 50),
-        content: Text(
-          message,
-          style: AppTextStyles.cairoMedium(fontSize: 15, color: AppColors.black),
-          textAlign: TextAlign.center,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Lottie.asset(
+                'assets/lottie/success_false.json',
+                fit: BoxFit.contain,
+                repeat: false,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: AppTextStyles.cairoBold(
+                fontSize: 16,
+                color: AppColors.textDark,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              'حسناً',
-              style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.mainC),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'حسناً',
+                style: AppTextStyles.cairoBold(
+                  fontSize: 15,
+                  color: AppColors.white,
+                ),
+              ),
             ),
           ),
         ],

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 
 class QrScanView extends StatefulWidget {
   const QrScanView({Key? key}) : super(key: key);
@@ -65,13 +65,41 @@ class _QrScanViewState extends State<QrScanView> {
               }
             },
           ),
+          // Overlay Target with Raya Rounded Corners
           Center(
             child: Container(
-              width: 250,
-              height: 250,
+              width: 260,
+              height: 260,
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.orange, width: 3),
-                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.orange, width: 3.5),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.orange.withValues(alpha: 0.2),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      'قم بتوجيه الكاميرا نحو الرمز',
+                      style: AppTextStyles.cairoMedium(
+                        fontSize: 12,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -84,14 +112,20 @@ class _QrScanViewState extends State<QrScanView> {
     setState(() => _isProcessing = true);
 
     if (value.startsWith('http://') || value.startsWith('https://')) {
-      final uri = Uri.parse(value);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
+      await UrlLauncherHelper.launchExternalUrl(
+        context,
+        value,
+        fallbackTitle: 'الرابط الممسوح',
+      );
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم المسح: $value')),
+          SnackBar(
+            content: Text(
+              'تم مسح الرمز: $value',
+              textDirection: TextDirection.rtl,
+            ),
+          ),
         );
       }
     }

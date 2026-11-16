@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/locale_provider.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 
 class StudentGuideView extends StatelessWidget {
-  const StudentGuideView({Key? key}) : super(key: key);
-
-  final String _guideUrl =
-      'https://drive.google.com/file/d/1eqMIpm9SvQtyCk282gxA7iu5s4G5mtV7/view';
+  const StudentGuideView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
-          AppStrings.get('stu_guide', langCode),
+          langCode == 'en' ? 'Student Guide' : 'دليل الطالب',
           style: AppTextStyles.cairoBold(fontSize: 18, color: AppColors.white),
         ),
         leading: IconButton(
@@ -30,56 +28,94 @@ class StudentGuideView extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(AppIcons.userGuide, size: 80, color: AppColors.mainC),
-              const SizedBox(height: 20),
-              Text(
-                langCode == 'en'
-                    ? 'Official Student Guide & Code of Conduct'
-                    : 'دليل الطالب الرسمي واللوائح الداخلية',
-                style: AppTextStyles.cairoExtraBold(
-                  fontSize: 18,
-                  color: AppColors.black,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                langCode == 'en'
-                    ? 'Tap below to read or download the complete student handbook.'
-                    : 'اضغط بالأسفل لعرض وتحميل الدليل الكامل للوائح والأنظمة الدراسية.',
-                style: AppTextStyles.cairoMedium(
-                  fontSize: 14,
-                  color: AppColors.lightGray,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.mainC,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+            decoration: AppDecorations.cardDecoration(context),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 140,
+                  height: 140,
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: AppColors.mintSurface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Lottie.asset(
+                    'assets/lottie/books.json',
+                    fit: BoxFit.contain,
+                    repeat: true,
                   ),
                 ),
-                onPressed: () async {
-                  final uri = Uri.parse(_guideUrl);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-                icon: const Icon(Icons.open_in_browser_rounded, color: AppColors.white),
-                label: Text(
-                  langCode == 'en' ? 'Open Guide' : 'فتح الدليل',
-                  style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.white),
+                const SizedBox(height: 24),
+                Text(
+                  langCode == 'en'
+                      ? 'Official Student Guide & Regulations'
+                      : 'دليل الطالب الرسمي واللوائح الداخلية',
+                  style: AppTextStyles.cairoExtraBold(
+                    fontSize: 18,
+                    color: AppColors.textDark,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  langCode == 'en'
+                      ? 'Tap below to read the comprehensive handbook on the official Raya portal.'
+                      : 'اضغط بالأسفل لعرض وتحميل الدليل الكامل للوائح والأنظمة الدراسية لمعهد راية عبر البوابة الرسمية.',
+                  style: AppTextStyles.cairoRegular(
+                    fontSize: 13.5,
+                    color: AppColors.textMuted,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.mintSurface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.mintBorder),
+                  ),
+                  child: Text(
+                    UrlLauncherHelper.studentGuideUrl,
+                    style: AppTextStyles.cairoMedium(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                    ),
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.ltr,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.orange,
+                      foregroundColor: AppColors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 2,
+                      shadowColor: AppColors.orange.withValues(alpha: 0.3),
+                    ),
+                    onPressed: () => UrlLauncherHelper.launchStudentGuide(context),
+                    icon: const Icon(Icons.open_in_browser_rounded, color: AppColors.white, size: 20),
+                    label: Text(
+                      langCode == 'en' ? 'Open Official Guide' : 'فتح دليل الطالب الرسمي',
+                      style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

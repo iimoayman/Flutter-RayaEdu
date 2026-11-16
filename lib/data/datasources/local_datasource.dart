@@ -137,6 +137,19 @@ class LocalDataSource {
 
   Future<void> clearAll() async {
     await _secureStorage.deleteAll();
+    // Preserve user configuration while wiping user session data
+    final savedLang = prefs.getString(StorageKeys.language);
+    final savedTheme = prefs.getString(StorageKeys.themeMode);
+    final savedScale = prefs.getDouble(StorageKeys.textScale);
+    final savedColor = prefs.getString(StorageKeys.primaryColor);
+    final wasFirstOpen = prefs.getBool(StorageKeys.isFirstOpen) ?? true;
+
     await prefs.clear();
+
+    if (savedLang != null) await prefs.setString(StorageKeys.language, savedLang);
+    if (savedTheme != null) await prefs.setString(StorageKeys.themeMode, savedTheme);
+    if (savedScale != null) await prefs.setDouble(StorageKeys.textScale, savedScale);
+    if (savedColor != null) await prefs.setString(StorageKeys.primaryColor, savedColor);
+    await prefs.setBool(StorageKeys.isFirstOpen, wasFirstOpen);
   }
 }

@@ -34,7 +34,7 @@ class _AddNewStatementViewState extends State<AddNewStatementView> {
     final langCode = context.watch<LocaleProvider>().locale.languageCode;
 
     return Scaffold(
-      backgroundColor: AppColors.bgColorLight,
+      backgroundColor: AppColors.bgLight,
       appBar: AppBar(
         title: Text(
           AppStrings.get('addNewStatement', langCode),
@@ -46,41 +46,75 @@ class _AddNewStatementViewState extends State<AddNewStatementView> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: _destinationController,
-                  decoration: AppDecorations.inputDecoration(
-                    context: context,
-                    hintText: langCode == 'en' ? 'Addressed Destination' : 'الجهة الموجه إليها بيان الدرجات',
-                  ),
-                  validator: (val) {
-                    if (val == null || val.trim().isEmpty) {
-                      return AppStrings.get('invaild_F', langCode);
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  decoration: AppDecorations.inputDecoration(
-                    context: context,
-                    hintText: langCode == 'en' ? 'Notes' : 'ملاحظات إضافية',
+                // Form Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: AppDecorations.cardDecoration(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: AppColors.mintSurface,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(AppIcons.statement, color: AppColors.primary, size: 22),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'بيانات طلب بيان الدرجات',
+                            style: AppTextStyles.cairoBold(fontSize: 15, color: AppColors.textDark),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      TextFormField(
+                        controller: _destinationController,
+                        decoration: AppDecorations.inputDecoration(
+                          context: context,
+                          hintText: langCode == 'en' ? 'Addressed Destination' : 'الجهة الموجه إليها بيان الدرجات',
+                          prefixIcon: const Icon(Icons.business_outlined, color: AppColors.primary, size: 20),
+                        ),
+                        validator: (val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return AppStrings.get('invaild_F', langCode);
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      TextFormField(
+                        controller: _notesController,
+                        maxLines: 3,
+                        decoration: AppDecorations.inputDecoration(
+                          context: context,
+                          hintText: langCode == 'en' ? 'Notes (Optional)' : 'ملاحظات إضافية (اختياري)',
+                          prefixIcon: const Icon(Icons.note_alt_outlined, color: AppColors.primary, size: 20),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
+
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.mainC,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppColors.orange,
+                    foregroundColor: AppColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 2,
+                    shadowColor: AppColors.orange.withValues(alpha: 0.3),
                   ),
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
@@ -90,6 +124,7 @@ class _AddNewStatementViewState extends State<AddNewStatementView> {
                         addressed: _destinationController.text.trim(),
                         notes: _notesController.text.trim(),
                       );
+                      if (!context.mounted) return;
                       StatusDialogs.hide(context);
                       if (success) {
                         StatusDialogs.showSuccess(
@@ -98,7 +133,7 @@ class _AddNewStatementViewState extends State<AddNewStatementView> {
                           onComplete: () => Navigator.of(context).pop(),
                         );
                       } else {
-                        StatusDialogs.showError(context, 'Failed to submit request');
+                        StatusDialogs.showError(context, 'فشل إرسال الطلب، يرجى المحاولة لاحقاً');
                       }
                     }
                   },

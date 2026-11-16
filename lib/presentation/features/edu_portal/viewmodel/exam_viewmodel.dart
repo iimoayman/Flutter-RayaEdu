@@ -19,7 +19,9 @@ class ExamViewModel with ChangeNotifier {
   bool get confirmOne => _confirmOne;
   bool get confirmTwo => _confirmTwo;
   bool get isSubmitting => _isSubmitting;
-  bool get canSubmit => _confirmOne && _confirmTwo && !_isSubmitting;
+  bool get isAlreadySubmitted => _currentExam?.foundAnswers ?? false;
+  bool get canSubmit =>
+      !isAlreadySubmitted && _confirmOne && _confirmTwo && !_isSubmitting;
 
   void setExam(ExamChapter exam, int chapterPk) {
     _currentExam = exam;
@@ -31,22 +33,25 @@ class ExamViewModel with ChangeNotifier {
   }
 
   void selectAnswer(int questionPk, String optionKey) {
+    if (isAlreadySubmitted) return;
     _selectedAnswers[questionPk] = optionKey;
     notifyListeners();
   }
 
   void toggleConfirmOne(bool val) {
+    if (isAlreadySubmitted) return;
     _confirmOne = val;
     notifyListeners();
   }
 
   void toggleConfirmTwo(bool val) {
+    if (isAlreadySubmitted) return;
     _confirmTwo = val;
     notifyListeners();
   }
 
   Future<bool> submitExam() async {
-    if (_chapterPk == null) return false;
+    if (isAlreadySubmitted || _chapterPk == null) return false;
     _isSubmitting = true;
     notifyListeners();
 
@@ -55,6 +60,15 @@ class ExamViewModel with ChangeNotifier {
         chapterPk: _chapterPk!,
         answers: _selectedAnswers,
       );
+      if (res.success && _currentExam != null) {
+        // Lock this exam immediately to prevent any duplicate submissions
+        _currentExam = ExamChapter(
+          pk: _currentExam!.pk,
+          name: _currentExam!.name,
+          questions: _currentExam!.questions,
+          foundAnswers: true,
+        );
+      }
       _isSubmitting = false;
       notifyListeners();
       return res.success;

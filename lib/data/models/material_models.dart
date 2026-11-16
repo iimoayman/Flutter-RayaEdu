@@ -87,10 +87,16 @@ class Chapter {
   });
 
   factory Chapter.fromJson(Map<String, dynamic> json) {
+    final rawComplete = json['complete'];
+    final isComplete = rawComplete == true ||
+        rawComplete == 1 ||
+        rawComplete == 'true' ||
+        rawComplete == '1';
+
     return Chapter(
       pk: json['pk'] ?? 0,
       name: json['name'] ?? '',
-      complete: json['complete'] ?? false,
+      complete: isComplete,
     );
   }
 }
@@ -102,6 +108,7 @@ class ChapterDetails {
   final List<String> comments;
   final List<ExamChapter> examChapters;
   final String publishDate;
+  final bool? complete;
 
   ChapterDetails({
     this.pk,
@@ -110,9 +117,18 @@ class ChapterDetails {
     required this.comments,
     required this.examChapters,
     required this.publishDate,
+    this.complete,
   });
 
   factory ChapterDetails.fromJson(Map<String, dynamic> json) {
+    final rawComplete = json['complete'];
+    final bool? isComplete = rawComplete != null
+        ? (rawComplete == true ||
+            rawComplete == 1 ||
+            rawComplete == 'true' ||
+            rawComplete == '1')
+        : null;
+
     return ChapterDetails(
       pk: json['pk'],
       name: json['name'] ?? '',
@@ -129,6 +145,7 @@ class ChapterDetails {
               .toList() ??
           [],
       publishDate: json['publish_date']?.toString() ?? '',
+      complete: isComplete,
     );
   }
 }
@@ -161,6 +178,12 @@ class ExamChapter {
   });
 
   factory ExamChapter.fromJson(Map<String, dynamic> json) {
+    final rawFound = json['found_answers'];
+    final isFound = rawFound == true ||
+        rawFound == 1 ||
+        rawFound == 'true' ||
+        rawFound == '1';
+
     return ExamChapter(
       pk: json['pk'] ?? 0,
       name: json['name'] ?? '',
@@ -168,7 +191,7 @@ class ExamChapter {
               ?.map((e) => Questions.fromJson(e))
               .toList() ??
           [],
-      foundAnswers: json['found_answers'] ?? false,
+      foundAnswers: isFound,
     );
   }
 }

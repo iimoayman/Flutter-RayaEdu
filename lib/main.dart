@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,79 +33,97 @@ import 'presentation/features/student_services/viewmodel/student_services_viewmo
 import 'presentation/navigation/app_router.dart';
 import 'presentation/navigation/app_routes.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase safely
-  try {
-    await Firebase.initializeApp();
-  } catch (_) {
-    // Allows local testing without google-services.json
-  }
+    // Catch and shield Flutter framework synchronous errors
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      debugPrint('Caught FlutterError safely: ${details.exceptionAsString()}');
+    };
 
-  // Portrait orientation lock mirroring AndroidManifest.xml
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    // Catch and shield unhandled asynchronous platform errors
+    PlatformDispatcher.instance.onError = (error, stack) {
+      debugPrint('Caught PlatformDispatcher error safely: $error');
+      return true;
+    };
 
-  // System UI Overlay styling
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: AppColors.mainC,
-      statusBarIconBrightness: Brightness.light,
-    ),
-  );
+    // Initialize Firebase safely
+    try {
+      await Firebase.initializeApp();
+    } catch (_) {
+      // Allows local testing without google-services.json
+    }
 
-  // Enable screenshot prevention & data leakage protection
-  await SecurityService.enableScreenProtection();
+    // Portrait orientation lock mirroring AndroidManifest.xml
+    try {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } catch (_) {}
 
-  // Initialize Local Storage & Data Sources
-  final localDataSource = LocalDataSource();
-  await localDataSource.init();
+    // System UI Overlay styling
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: AppColors.mainC,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
 
-  final apiClient = ApiClient(localDataSource);
-  final remoteDataSource = RemoteDataSource(apiClient);
-  final supabaseDataSource = SupabaseDataSource(apiClient);
+    // Enable screenshot prevention & data leakage protection
+    await SecurityService.enableScreenProtection();
 
-  final StudentRepository studentRepository = StudentRepositoryImpl(
-    remoteDataSource: remoteDataSource,
-    localDataSource: localDataSource,
-    supabaseDataSource: supabaseDataSource,
-  );
+    // Initialize Local Storage & Data Sources
+    final localDataSource = LocalDataSource();
+    await localDataSource.init();
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LocaleProvider(localDataSource)),
-        ChangeNotifierProvider(create: (_) => TextScaleProvider(localDataSource)),
-        ChangeNotifierProvider(create: (_) => SettingsViewModel(localDataSource)),
-        ChangeNotifierProvider(create: (_) => SplashViewModel(localDataSource)),
-        ChangeNotifierProvider(create: (_) => OnboardingViewModel(localDataSource)),
-        ChangeNotifierProvider(
-          create: (_) => SignInViewModel(
-            repository: studentRepository,
-            localDataSource: localDataSource,
+    final apiClient = ApiClient(localDataSource);
+    final remoteDataSource = RemoteDataSource(apiClient);
+    final supabaseDataSource = SupabaseDataSource(apiClient);
+
+    final StudentRepository studentRepository = StudentRepositoryImpl(
+      remoteDataSource: remoteDataSource,
+      localDataSource: localDataSource,
+      supabaseDataSource: supabaseDataSource,
+    );
+
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LocaleProvider(localDataSource)),
+          ChangeNotifierProvider(create: (_) => TextScaleProvider(localDataSource)),
+          ChangeNotifierProvider(create: (_) => SettingsViewModel(localDataSource)),
+          ChangeNotifierProvider(create: (_) => SplashViewModel(localDataSource)),
+          ChangeNotifierProvider(create: (_) => OnboardingViewModel(localDataSource)),
+          ChangeNotifierProvider(
+            create: (_) => SignInViewModel(
+              repository: studentRepository,
+              localDataSource: localDataSource,
+            ),
           ),
-        ),
-        ChangeNotifierProvider(create: (_) => GuestViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => HomeViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => NotificationsViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => DigitalIdViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => EduPortalViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => ExamViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => StudentServicesViewModel(studentRepository)),
-        ChangeNotifierProvider(create: (_) => ResultsRecordsViewModel(studentRepository)),
-        ChangeNotifierProvider(
-          create: (_) => AdmissionViewModel(
-            repository: studentRepository,
-            localDataSource: localDataSource,
+          ChangeNotifierProvider(create: (_) => GuestViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => HomeViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => NotificationsViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => DigitalIdViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => EduPortalViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => ExamViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => StudentServicesViewModel(studentRepository)),
+          ChangeNotifierProvider(create: (_) => ResultsRecordsViewModel(studentRepository)),
+          ChangeNotifierProvider(
+            create: (_) => AdmissionViewModel(
+              repository: studentRepository,
+              localDataSource: localDataSource,
+            ),
           ),
-        ),
-      ],
-      child: const RayaEduApp(),
-    ),
-  );
+        ],
+        child: const RayaEduApp(),
+      ),
+    );
+  }, (error, stackTrace) {
+    debugPrint('Global zone caught uncaught exception: $error');
+  });
 }
 
 class RayaEduApp extends StatelessWidget {

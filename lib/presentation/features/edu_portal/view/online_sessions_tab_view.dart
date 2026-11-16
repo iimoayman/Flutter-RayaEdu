@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
-import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/locale_provider.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 import '../../home/viewmodel/home_viewmodel.dart';
 
 class OnlineSessionsTabView extends StatelessWidget {
@@ -18,22 +17,29 @@ class OnlineSessionsTabView extends StatelessWidget {
     final huaweiSessions = homeVm.huaweiSessions;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Huawei Header Section
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               color: AppColors.huawei.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.huawei.withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.huawei.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.school_outlined, color: AppColors.huawei, size: 32),
-                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.school_outlined, color: AppColors.huawei, size: 26),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     langCode == 'en'
@@ -56,49 +62,82 @@ class OnlineSessionsTabView extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: huaweiSessions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (ctx, index) {
                 final session = huaweiSessions[index];
-                return InkWell(
-                  onTap: () => _openUrl(session.link),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: AppDecorations.cardDecoration(context),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: AppColors.huawei.withValues(alpha: 0.12),
-                          radius: 22,
-                          child: const Icon(Icons.play_circle_fill_rounded,
-                              color: AppColors.huawei),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                session.title,
-                                style: AppTextStyles.cairoBold(
-                                  fontSize: 14,
-                                  color: AppColors.black,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${session.instructor} - ${session.time}',
-                                style: AppTextStyles.cairoMedium(
-                                  fontSize: 12,
-                                  color: AppColors.lightGray,
-                                ),
-                              ),
-                            ],
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => UrlLauncherHelper.launchExternalUrl(
+                      context,
+                      session.link,
+                      fallbackTitle: session.title,
+                    ),
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: AppDecorations.cardDecoration(context),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.huawei.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: AppColors.huawei,
+                              size: 24,
+                            ),
                           ),
-                        ),
-                        const Icon(AppIcons.forwardArrow,
-                            color: AppColors.lightGray, size: 16),
-                      ],
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  session.title,
+                                  style: AppTextStyles.cairoBold(
+                                    fontSize: 14.5,
+                                    color: AppColors.textDark,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.person_outline_rounded,
+                                      size: 13,
+                                      color: AppColors.textLight,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${session.instructor} • ${session.time}',
+                                      style: AppTextStyles.cairoRegular(
+                                        fontSize: 12,
+                                        color: AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFF1F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: AppColors.primary,
+                              size: 12,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -108,13 +147,5 @@ class OnlineSessionsTabView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _openUrl(String url) async {
-    if (url.trim().isEmpty) return;
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
   }
 }
