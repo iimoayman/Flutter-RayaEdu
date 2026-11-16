@@ -1,4 +1,4 @@
-package com.rayaedu.raya_edu
+package com.rayaedu.rayaedu
 
 import io.flutter.embedding.android.FlutterActivity
 
