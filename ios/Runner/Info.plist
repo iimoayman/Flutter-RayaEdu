@@ -68,5 +68,18 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>يحتاج التطبيق إلى استخدام الكاميرا لمسح رموز QR الخاصة بالحضور والخدمات التعليمية.</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>يحتاج التطبيق إلى استخدام بصمة الوجه لتسجيل الدخول السريع والآمن.</string>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>https</string>
+			<string>http</string>
+			<string>tel</string>
+			<string>mailto</string>
+		</array>
 	</dict>
 </plist>
