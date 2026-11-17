@@ -8,9 +8,18 @@ enum SecurityCheckResult {
 }
 
 class SecurityService {
-  /// Enable screenshot prevention & data leakage protection using screen_protector
+  /// Enable screenshot prevention & data leakage protection (Android only)
+  /// Screenshot prevention is explicitly disabled on iOS to allow taking screenshots
   static Future<void> enableScreenProtection() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    // Screenshot prevention explicitly disabled on iOS as requested
+    if (Platform.isIOS) {
+      try {
+        await ScreenProtector.preventScreenshotOff();
+        await ScreenProtector.protectDataLeakageOff();
+      } catch (_) {}
+      return;
+    }
+    if (!Platform.isAndroid) return;
     try {
       await ScreenProtector.preventScreenshotOn();
       await ScreenProtector.protectDataLeakageOn();
@@ -19,7 +28,6 @@ class SecurityService {
 
   /// Disable screenshot prevention
   static Future<void> disableScreenProtection() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
     try {
       await ScreenProtector.preventScreenshotOff();
       await ScreenProtector.protectDataLeakageOff();
